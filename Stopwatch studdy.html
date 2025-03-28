@@ -364,6 +364,13 @@
                     </svg>
                     Start
                 </button>
+                <button class="btn btn-danger" id="resetBtn" aria-label="Reset timers">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                    </svg>
+                    Reset
+                </button>
             </div>
         </div>
         
@@ -451,6 +458,7 @@
             const stopwatchDisplay = document.getElementById('stopwatch');
             const breakTimeDisplay = document.getElementById('breakTime');
             const playPauseBtn = document.getElementById('playPauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
             const notification = document.getElementById('notification');
             const todoForm = document.getElementById('todoForm');
             const todoInput = document.getElementById('todoInput');
@@ -476,6 +484,7 @@
             // Set up event listeners
             function setupEventListeners() {
                 playPauseBtn.addEventListener('click', toggleWorkBreak);
+                resetBtn.addEventListener('click', resetTimers);
                 todoForm.addEventListener('submit', handleTodoSubmit);
                 window.addEventListener('beforeunload', handleBeforeUnload);
                 
@@ -726,6 +735,22 @@
                 localStorage.setItem(STORAGE_KEY + '_stats', JSON.stringify(statsData));
                 updateStats();
                 updateChart(document.querySelector('.stats-period-btn.active').dataset.period);
+            }
+
+            // Reset all timers
+            function resetTimers() {
+                if (confirm("Are you sure you want to reset all timers? This cannot be undone.")) {
+                    mode = null;
+                    startTime = 0;
+                    elapsedWorkTime = 0;
+                    elapsedBreakTime = 0;
+                    
+                    cancelAnimation();
+                    updateDisplays();
+                    saveData();
+                    
+                    showNotification("Timers reset successfully");
+                }
             }
 
             // Toggle between work and break modes
@@ -991,12 +1016,8 @@
                     todos
                 };
 
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                    saveDailyStats();
-                } catch (e) {
-                    console.error('Failed to save data:', e);
-                }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                saveDailyStats();
             }
 
             // Load data from localStorage
